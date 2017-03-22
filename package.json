@@ -1,0 +1,23 @@
+{
+  "name": "dotstorage",
+  "version": "1.0.0",
+  "description": "Provide access to localStorage with dot-notation",
+  "main": "DotStorage.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Farbdose/DotStorage.git"
+  },
+  "keywords": [
+    "localStorage",
+    "Javascript"
+  ],
+  "author": "Farbdose",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Farbdose/DotStorage/issues"
+  },
+  "homepage": "https://github.com/Farbdose/DotStorage#readme",
+  "devDependencies": {
+    "mocha": "^2.2.*"
+  }
+}
