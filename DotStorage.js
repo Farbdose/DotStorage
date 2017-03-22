@@ -20,6 +20,13 @@
         // return if obj isn't an object or already a DeepProxy
         if (typeof(obj) !== "object" || obj.isDeepProxy) return obj;
 
+        // mark this object as a DeepProxy
+        Object.defineProperty(obj, "isDeepProxy", {
+            enumerable: false,
+            writable: true
+        });
+        obj.isDeepProxy = true;
+
         // wrap all properties of obj in DeepProxies
         traverseNonPrimitives(obj, function TraverseCallback(o, key, val) {
             o[key] = DeepProxy(val, callback)
@@ -34,13 +41,6 @@
                 return true
             }
         };
-
-        // mark this object as a DeepProxy
-        Object.defineProperty(obj, "isDeepProxy", {
-            enumerable: false,
-            writable: true
-        });
-        obj.isDeepProxy = true;
 
         return new Proxy(obj, handlers);
     };
