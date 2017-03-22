@@ -27,7 +27,7 @@ dotStorage.complexArray.forEach(function (e, i) {
 });
 ```
 
-Save an object, modify nested properties and be surprised that the DotStorage saved these changes too
+Save an object, modify nested properties and be surprised that DotStorage saves these changes too
 ```
 var myObj = {"New": "object"};
 dotStorage.refTest = myObj;
