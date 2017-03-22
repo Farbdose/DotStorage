@@ -3,7 +3,7 @@
      found here: http://stackoverflow.com/a/722732/2422125 */
     function traverse(o, func) {
         for (var i in o) {
-            if (o.hasOwnProperty(i)) {
+            if (o.hasOwnProperty(i) && i != "isDeepProxy") {
                 if (o[i] !== null && typeof(o[i]) == "object") {
                     //going one step down in the object tree!!
                     traverse(o[i], func);
@@ -16,18 +16,18 @@
     /* wrap a given object in a proxy and call callback on any property change
      also do the same for all properties of the given object that are objects themself
      finally when a change is detected and the new value isn't a DeepProxy, wrap it in one */
-    var DeepProxy = function (obj, callback) {
+    var DeepProxy = function DeepProxy(obj, callback) {
         // return if obj isn't an object or already a DeepProxy
         if (obj !== Object(obj) || obj.isDeepProxy) return obj;
 
         // wrap all properties of obj in DeepProxies
-        traverse(obj, function (o, key, val) {
+        traverse(obj, function TraverseCallback(o, key, val) {
             o[key] = DeepProxy(val, callback)
         });
 
         // set handler to intercept property changes
         var handlers = {
-            set: function (innerObj, innerKey, innerValue) {
+            set: function deepProxySetHandler(innerObj, innerKey, innerValue) {
                 // wrap the new value in a DeepProxy
                 innerObj[innerKey] = DeepProxy(innerValue, callback);
                 callback();
@@ -36,6 +36,10 @@
         };
 
         // mark this object as a DeepProxy
+        Object.defineProperty(obj, "isDeepProxy", {
+            enumerable: false,
+            writable: true
+        });
         obj.isDeepProxy = true;
 
         return new Proxy(obj, handlers);
@@ -46,22 +50,22 @@
 
     var handlers = {
         // intercept changes to the localStorage
-        set: function (storage, key, value) {
-            // clone the object to remove the DeepProxy marker befor saving it
+        set: function dotStorageSetHandler (storage, key, value) {
+            // clone the object to remove the DeepProxy marker before saving it
             var clone = JSON.parse(JSON.stringify(value));
             delete clone.isDeepProxy;
 
-            // save the object in the localStorage
+            // save the clone in the localStorage
             storage.setItem(key, JSON.stringify(clone));
 
-            // update the dotCache and use the clone to prevent interaction between multiple DeepProxy instances
-            dotCache[key] = DeepProxy(clone, function () {
-                handlers.set(storage, key, clone);
+            // update the dotCache
+            dotCache[key] = DeepProxy(value, function dotStorageSetHandlerDeepCallback () {
+                handlers.set(storage, key, value);
             });
             return true
         },
 
-        get: function (storage, key) {
+        get: function dotStorageGetHandler(storage, key) {
             if (dotCache.hasOwnProperty(key)) {
                 // if this key is in the dotCache just return the DeepProxy thats saves there
                 return dotCache[key]
@@ -73,7 +77,7 @@
                 if (obj != null) {
                     // flag the new object as not a DeepProxy (just to be sure)
                     obj.isDeepProxy = false;
-                    dotCache[key] = DeepProxy(obj, function () {
+                    dotCache[key] = DeepProxy(obj, function dotStorageGetHandlerDeepCallback() {
                         handlers.set(storage, key, obj);
                     });
                 }
@@ -84,7 +88,7 @@
         },
 
         // implement has function as localStorage contains non null value with this key
-        has: function (storage, key) {
+        has: function dotStorageHasHandler(storage, key) {
             return storage[key] != null
         }
     };
