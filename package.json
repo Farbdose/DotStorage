@@ -17,7 +17,7 @@
     "url": "https://github.com/Farbdose/DotStorage/issues"
   },
   "homepage": "https://github.com/Farbdose/DotStorage#readme",
-  "devDependencies": {
-    "mocha": "^2.2.*"
+  "dependencies": {
+    "lz-string": "^1.4.4"
   }
 }
