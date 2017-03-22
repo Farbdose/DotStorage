@@ -18,7 +18,7 @@
      finally when a change is detected and the new value isn't a DeepProxy, wrap it in one */
     var DeepProxy = function DeepProxy(obj, callback) {
         // return if obj isn't an object or already a DeepProxy
-        if (obj !== Object(obj) || obj.isDeepProxy) return obj;
+        if (typeof(o[i]) !== "object" || obj.isDeepProxy) return obj;
 
         // wrap all properties of obj in DeepProxies
         traverseNonPrimitives(obj, function TraverseCallback(o, key, val) {
@@ -51,12 +51,8 @@
     var handlers = {
         // intercept changes to the localStorage
         set: function dotStorageSetHandler (storage, key, value) {
-            // clone the object to remove the DeepProxy marker before saving it
-            var clone = JSON.parse(JSON.stringify(value));
-            delete clone.isDeepProxy;
-
-            // save the clone in the localStorage
-            storage.setItem(key, JSON.stringify(clone));
+            // save the value in the localStorage
+            storage.setItem(key, JSON.stringify(value));
 
             // update the dotCache
             dotCache[key] = DeepProxy(value, function dotStorageSetHandlerDeepCallback () {
