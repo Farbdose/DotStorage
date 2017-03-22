@@ -9,10 +9,10 @@ dotStorage["Hello"] = "World";
 console.assert(dotStorage["Hello"] == "World");
 
 // Test simple objects
-dotStorage.stringTest = {
+dotStorage.simpleObj = {
     "Hello": "World"
 };
-console.assert(dotStorage.stringTest.Hello == "World");
+console.assert(dotStorage.simpleObj.Hello == "World");
 
 // Test array of primitives
 input = [1, 2, 3];
