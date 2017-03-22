@@ -23,13 +23,13 @@ dotStorage.arrayTest.forEach(function (e, i) {
 
 // Test array of objects
 dotStorage.complexArrayTest = [
-    {"Hello": "World0", "index": 0},
-    {"Hello": "World1", "index": 1},
-    {"Hello": "World2", "index": 2}
+    {"Hello": "World0", "index": 0, "more":[{"Hello0":"World3"}]},
+    {"Hello": "World1", "index": 1, "more":[{"Hello1":"World4"}]},
+    {"Hello": "World2", "index": 2, "more":[{"Hello2":"World5"}]}
 ];
 dotStorage.complexArrayTest.forEach(function (e, i) {
-    console.assert(e.Hello == "World" + i);
-    console.assert(e.index == i)
+    console.assert(e.Hello == "World" + i, [e,i]);
+    console.assert(e.index == i, [e,i])
 });
 
 // Test DeepProxy (changes to nested attributes are expected to be save in the localStorage too)
@@ -41,7 +41,7 @@ myObj.New = {"nested": {"otherObject": [0, 1]}};
 console.assert(myObj.New.nested.otherObject.length == 2);
 
 myObj.New.nested = 2;
-console.assert(myObj.New.nested == 2);
+console.assert(myObj.New.nested == 2, myObj.New.nested);
 
 
 // stresstest
