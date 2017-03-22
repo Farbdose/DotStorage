@@ -93,7 +93,7 @@
         }
     };
 
-    // public the created DotStorage
+    // publish the created DotStorage
     window.dotStorage = new Proxy(window.localStorage, handlers);
 }());
 
