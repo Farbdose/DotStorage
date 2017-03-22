@@ -1,14 +1,14 @@
 (function () {
-    /* traverse object tree from given object and call func on all properties
+    /* traverse object tree from given object and call func on all non primitive properties
      found here: http://stackoverflow.com/a/722732/2422125 */
-    function traverse(o, func) {
+    function traverseNonPrimitives(o, func) {
         for (var i in o) {
             if (o.hasOwnProperty(i) && i != "isDeepProxy") {
                 if (o[i] !== null && typeof(o[i]) == "object") {
                     //going one step down in the object tree!!
-                    traverse(o[i], func);
+                    traverseNonPrimitives(o[i], func);
+                    func.apply(this, [o, i, o[i]]);
                 }
-                func.apply(this, [o, i, o[i]]);
             }
         }
     }
@@ -21,7 +21,7 @@
         if (obj !== Object(obj) || obj.isDeepProxy) return obj;
 
         // wrap all properties of obj in DeepProxies
-        traverse(obj, function TraverseCallback(o, key, val) {
+        traverseNonPrimitives(obj, function TraverseCallback(o, key, val) {
             o[key] = DeepProxy(val, callback)
         });
 
