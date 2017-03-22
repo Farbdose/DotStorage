@@ -1,15 +1,17 @@
 (function () {
-    /* traverse object tree from given object and call func on all non primitive properties
-     found here: http://stackoverflow.com/a/722732/2422125 */
+    /* traverse object tree from given object and call func on all non primitive properties*/
     function traverseNonPrimitives(o, func) {
-        for (var i in o) {
-            if (o.hasOwnProperty(i) && i != "isDeepProxy") {
-                if (o[i] !== null && typeof(o[i]) == "object") {
-                    //going one step down in the object tree!!
-                    traverseNonPrimitives(o[i], func);
-                    func.apply(this, [o, i, o[i]]);
-                }
+        var value, key;
+        var keys = Object.keys(o);
+        for (var i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = o[i];
+            if (value !== null && typeof(value) == "object") {
+                //going one step down in the object tree!!
+                traverseNonPrimitives(value, func);
+                func.apply(this, [o, i, value]);
             }
+
         }
     }
 
@@ -50,12 +52,12 @@
 
     var handlers = {
         // intercept changes to the localStorage
-        set: function dotStorageSetHandler (storage, key, value) {
+        set: function dotStorageSetHandler(storage, key, value) {
             // save the value in the localStorage
-            storage.setItem(key, JSON.stringify(value));
+            storage.setItem(key,  LZString.compress(JSON.stringify(value)));
 
             // update the dotCache
-            dotCache[key] = DeepProxy(value, function dotStorageSetHandlerDeepCallback () {
+            dotCache[key] = DeepProxy(value, function dotStorageSetHandlerDeepCallback() {
                 handlers.set(storage, key, value);
             });
             return true
@@ -67,10 +69,11 @@
                 return dotCache[key]
             } else {
                 // if not try to load it from the lcoalStorage
-                obj = JSON.parse(storage.getItem(key));
+                obj = storage.getItem(key);
 
                 // if there was an entry in the localStorage with the given key, add it to the dotCache
                 if (obj != null) {
+                    obj = JSON.parse(LZString.decompress(obj));
                     // flag the new object as not a DeepProxy (just to be sure)
                     obj.isDeepProxy = false;
                     dotCache[key] = DeepProxy(obj, function dotStorageGetHandlerDeepCallback() {
