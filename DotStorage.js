@@ -18,7 +18,7 @@
      finally when a change is detected and the new value isn't a DeepProxy, wrap it in one */
     var DeepProxy = function DeepProxy(obj, callback) {
         // return if obj isn't an object or already a DeepProxy
-        if (typeof(o[i]) !== "object" || obj.isDeepProxy) return obj;
+        if (typeof(obj) !== "object" || obj.isDeepProxy) return obj;
 
         // wrap all properties of obj in DeepProxies
         traverseNonPrimitives(obj, function TraverseCallback(o, key, val) {
