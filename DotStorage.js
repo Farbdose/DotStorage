@@ -4,20 +4,13 @@
      finally when a change is detected and the new value isn't a DeepProxy, wrap it in one */
     var DeepProxy = function DeepProxy(obj, callback) {
         // return if obj isn't an object or already a DeepProxy
-        if (typeof(obj) !== "object" || obj.isDeepProxy) return obj;
-
-        // mark this object as a DeepProxy
-        Object.defineProperty(obj, "isDeepProxy", {
-            enumerable: false,
-            writable: true
-        });
-        obj.isDeepProxy = true;
+        if (typeof(obj) !== "object" || (obj instanceof DeepProxy)) return obj;
 
         // set handler to intercept property changes
         var handlers = {
             set: function deepProxySetHandler(innerObj, innerKey, innerValue) {
                 // wrap the new value in a DeepProxy
-                innerObj[innerKey] = DeepProxy(innerValue, callback);
+                innerObj[innerKey] = DeepProxyCreator(innerValue, callback);
                 callback();
                 return true
             }
@@ -30,12 +23,16 @@
             key = keys[i];
             value = obj[key];
 
-            if (value !== null && typeof(value) === "object") {
-                obj[key] = DeepProxy(value, callback)
+            if (value !== null && typeof(value) === "object" &&  !(obj instanceof DeepProxy)) {
+                obj[key] = new DeepProxy(value, callback)
             }
         }
 
         return new Proxy(obj, handlers);
+    };
+
+    var DeepProxyCreator = function DeepProxyCreator(obj, callback){
+        return typeof(obj) === "object" && ! (obj instanceof DeepProxy) ? new DeepProxy(obj, callback) : obj
     };
 
     // cache results from localStorage so we don't have to wrap everything again in a DeepProxy on access
@@ -45,13 +42,13 @@
         // intercept changes to the localStorage
         set: function dotStorageSetHandler(storage, key, value) {
             // save the value in the localStorage
-            var str = JSON.stringify(value);
+            str = JSON.stringify(value);
             storage.setItem(key, LZString.compress(str));
 
-            // clone value, can't have inter-storage references
+            // create a clone, can't have the same object multiple times in the dotStorage -> infinite recursion
             value = JSON.parse(str);
 
-            dotCache[key] = DeepProxy(value, function dotStorageSetHandlerDeepCallback() {
+            dotCache[key] = DeepProxyCreator(value, function dotStorageSetHandlerDeepCallback() {
                 handlers.set(storage, key, value);
             });
             return true
@@ -70,8 +67,7 @@
                     obj = JSON.parse(LZString.decompress(obj));
 
                     // flag the new object as not a DeepProxy (just to be sure)
-                    obj.isDeepProxy = false;
-                    dotCache[key] = DeepProxy(obj, function dotStorageGetHandlerDeepCallback() {
+                    dotCache[key] = DeepProxyCreator(obj, function dotStorageGetHandlerDeepCallback() {
                         handlers.set(storage, key, obj);
                     });
                 }
