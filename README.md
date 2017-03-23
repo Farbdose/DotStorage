@@ -1,6 +1,8 @@
 # DotStorage
 Wrapper for localStorage to add full dot support
 
+[jsFiddle for Testing](https://jsfiddle.net/Farbdose/fufsbgef/)
+
 ## Usage
 Set primitive values:
 ```javascript
