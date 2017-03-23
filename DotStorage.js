@@ -1,4 +1,5 @@
 (function () {
+
     /* wrap a given object in a proxy and call callback on any property change
      also do the same for all properties of the given object that are objects themself
      finally when a change is detected and the new value isn't a DeepProxy, wrap it in one */
@@ -46,7 +47,7 @@
         // intercept changes to the localStorage
         set: function dotStorageSetHandler(storage, key, value) {
             // save the value in the localStorage
-            storage.setItem(key, LZString.compress(JSON.stringify(value)));
+            storage.setItem(key, pako.deflate(JSON.stringify(value), { to: 'string' }));
 
             dotCache[key] = DeepProxy(value, function dotStorageSetHandlerDeepCallback() {
                 handlers.set(storage, key, dotCache[key]);
@@ -55,7 +56,7 @@
         },
 
         get: function dotStorageGetHandler(storage, key) {
-            if (dotCache.hasOwnProperty(key)) {
+            if (key in Object.keys(dotCache)) {
                 // if this key is in the dotCache just return the DeepProxy thats saves there
                 return dotCache[key]
             } else {
@@ -64,7 +65,7 @@
 
                 // if there was an entry in the localStorage with the given key, add it to the dotCache
                 if (obj != null) {
-                    obj = JSON.parse(LZString.decompress(obj));
+                    obj = JSON.parse(pako.inflate(obj, { to: 'string' }));
 
                     dotCache[key] = DeepProxy(obj, function dotStorageGetHandlerDeepCallback() {
                         handlers.set(storage, key, obj);

@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/Farbdose/DotStorage#readme",
   "dependencies": {
-    "lz-string": "^1.4.4"
+    "packo": ">=1.0.4"
   }
 }
