@@ -33,12 +33,12 @@ dotStorage.complexArrayTest.forEach(function (e, i) {
 });
 
 // Test DeepProxy (changes to nested attributes are expected to be save in the localStorage too)
-var myObj = {"New": "object"};
+var myObj = {"New": "pre"};
 dotStorage.refTest = myObj;
 myObj = dotStorage.refTest;
 
-myObj.New = {"nested": {"otherObject": [0, 1]}};
-console.assert(myObj.New.nested.otherObject.length == 2);
+myObj.New = {"nested": {"post": [0, 1]}};
+console.assert(myObj.New.nested.post.length == 2);
 
 myObj.New.nested = 2;
 console.assert(myObj.New.nested == 2, myObj.New.nested);
@@ -106,7 +106,7 @@ var randomJSON = [
 ];
 
 var arr = [];
-for(var i=0; i<100; i++){
+for(var i=0; i<1000; i++){
     arr.push(randomJSON)
 }
 
