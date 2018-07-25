@@ -3,6 +3,9 @@ Wrapper for localStorage to add full dot support
 
 [jsFiddle for Testing](https://jsfiddle.net/Farbdose/fufsbgef/)
 
+## Dependencies
+This requires [pako](https://github.com/nodeca/pako) to work...
+
 ## Usage
 Set primitive values:
 ```javascript
